@@ -1,0 +1,42 @@
+name: aegis_client
+
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.4.9
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.3.4
+  web_socket_channel: ^3.0.1
+  lucide_icons: ^0.257.0
+  audioplayers: ^6.1.0
+  permission_handler: ^11.3.1
+  url_launcher: ^6.3.1
+  intl: ^0.20.1
+  provider: ^6.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/alert.wav
+  plugin:
+    platforms:
+      linux:
+        pluginClass: none
+

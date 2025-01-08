@@ -24,7 +24,11 @@ class _SettingsPageState extends State<SettingsPage> {
     'maxRetries': 3,
     'retryDelay': 1000,
     'playAlerts': false,
-    'trafficPosition': 'left'
+    'usesSip': false,
+    'sipServer': '',
+    'sipPort': '',
+    'sipUser': '',
+    'sipPassword': ''
   };
 
   @override
@@ -46,8 +50,11 @@ class _SettingsPageState extends State<SettingsPage> {
         settings['maxRetries'] = prefs.getInt('maxRetries') ?? 3;
         settings['retryDelay'] = prefs.getInt('retryDelay') ?? 1000;
         settings['playAlerts'] = prefs.getBool('playAlerts') ?? false;
-        settings['trafficPosition'] =
-            prefs.getString('trafficPosition') ?? 'left';
+        settings['usesSip'] = prefs.getString('usesSip') ?? false;
+        settings['sipServer'] = prefs.getString('sipServer') ?? '';
+        settings['sipPort'] = prefs.getString('sipPort') ?? '';
+        settings['sipUser'] = prefs.getString('sipUser') ?? '';
+        settings['sipPassword'] = prefs.getString('sipPassword') ?? '';
       });
     } catch (e) {
       debugPrint('Error loading settings: $e');
@@ -77,7 +84,11 @@ class _SettingsPageState extends State<SettingsPage> {
       await prefs.setInt('maxRetries', settings['maxRetries']);
       await prefs.setInt('retryDelay', settings['retryDelay']);
       await prefs.setBool('playAlerts', settings['playAlerts']);
-      await prefs.setString('trafficPosition', settings['trafficPosition']);
+      await prefs.setString('usesSip', settings['usesSip']);
+      await prefs.setString('sipServer', settings['sipServer'] ?? '');
+      await prefs.setString('sipPort', settings['sipPort'] ?? '');
+      await prefs.setString('sipUser', settings['sipUser'] ?? '');
+      await prefs.setString('sipPassword', settings['sipPassword'] ?? '');
       // Aquí iría la lógica para guardar la configuración
 
       // Restart the application
@@ -103,7 +114,11 @@ class _SettingsPageState extends State<SettingsPage> {
         'maxRetries': 3,
         'retryDelay': 1000,
         'playAlerts': false,
-        'trafficPosition': 'left'
+        'usesSip': false,
+        'sipServer': '',
+        'sipPort': '',
+        'sipUser': '',
+        'sipPassword': ''
       };
     });
     final prefs = await SharedPreferences.getInstance();
@@ -113,7 +128,11 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.remove('maxRetries');
     await prefs.remove('retryDelay');
     await prefs.remove('playAlerts');
-    await prefs.remove('trafficPosition');
+    await prefs.remove('usesSip');
+    await prefs.remove('sipServer');
+    await prefs.remove('sipPort');
+    await prefs.remove('sipUser');
+    await prefs.remove('sipPassword');
   }
 
   @override
@@ -262,6 +281,82 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ),
 
+                            // SIP Switch and Configuration
+                            _buildSection(
+                              'Usar SIP',
+                              Column(
+                                children: [
+                                  ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    subtitle: const Text(
+                                        'Activa o desactiva el uso de SIP'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.phone,
+                                            color: Colors.grey),
+                                        Switch(
+                                          value: settings['usesSip'],
+                                          onChanged: (value) {
+                                            setState(() =>
+                                                settings['usesSip'] = value);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (settings['usesSip']) ...[
+                                    const SizedBox(height: 16),
+                                    _buildTextField(
+                                      'Servidor SIP',
+                                      'ej: sip.ejemplo.com',
+                                      Icons.dns,
+                                      (value) {
+                                        setState(() =>
+                                            settings['sipServer'] = value);
+                                      },
+                                      settings['sipServer'] ?? '',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildTextField(
+                                      'Puerto SIP',
+                                      'ej: 5060',
+                                      null,
+                                      (value) {
+                                        setState(
+                                            () => settings['sipPort'] = value);
+                                      },
+                                      settings['sipPort'] ?? '',
+                                      isNumber: true,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildTextField(
+                                      'Usuario SIP',
+                                      'ej: usuario@dominio.com',
+                                      Icons.person,
+                                      (value) {
+                                        setState(
+                                            () => settings['sipUser'] = value);
+                                      },
+                                      settings['sipUser'] ?? '',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildTextField(
+                                      'Contraseña SIP',
+                                      'Contraseña',
+                                      Icons.lock,
+                                      (value) {
+                                        setState(() =>
+                                            settings['sipPassword'] = value);
+                                      },
+                                      settings['sipPassword'] ?? '',
+                                      isPassword: true,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+
                             // Action Buttons
                             const SizedBox(height: 24),
                             SizedBox(
@@ -352,6 +447,7 @@ class _SettingsPageState extends State<SettingsPage> {
     Function(String) onChanged,
     String value, {
     bool isNumber = false,
+    bool isPassword = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,6 +459,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 8),
         TextFormField(
           initialValue: value,
+          obscureText: isPassword,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: icon != null ? Icon(icon) : null,

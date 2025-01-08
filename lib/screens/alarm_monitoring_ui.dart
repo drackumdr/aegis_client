@@ -121,8 +121,8 @@ class _AlarmMonitoringUIState extends State<AlarmMonitoringUI> {
 
   void _updateCounters() {
     if (_events.isNotEmpty) {
-      // Check for unprocessed events and play sound
-      if (_events.any((e) => !e['isProcessed'])) {
+      bool hasUnprocessedEvents = _events.any((e) => !e['isProcessed']);
+      if (hasUnprocessedEvents && !_audioManager.isPaused) {
         _audioManager.playAlertSound();
       }
     }
@@ -194,6 +194,12 @@ class _AlarmMonitoringUIState extends State<AlarmMonitoringUI> {
             backgroundColor: Colors.green,
           ),
         );
+
+        // Check for remaining unprocessed events after processing
+        if (_events.any((e) => !e['isProcessed'])) {
+          _audioManager.isPaused = false;
+          _audioManager.playAlertSound();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -301,6 +307,10 @@ class _AlarmMonitoringUIState extends State<AlarmMonitoringUI> {
           );
         }
         return;
+      }
+
+      if (!event['isProcessed']) {
+        _audioManager.pauseSound(const Duration(minutes: 1));
       }
 
       setState(() {
